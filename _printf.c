@@ -8,27 +8,44 @@
  */
 int _printf(const char *format, ...)
 {
-	va_list args;
-	int i = 0, count = 0;
+    va_list args;
+    int i = 0, count = 0;
 
-	if (!format)
-		return (-1);
+    if (!format)
+        return (-1);
 
-	va_start(args, format);
+    va_start(args, format);
 
-	while (format[i])
-	{
-		if (format[i] != '%')
-		{
-			count += write(1, &format[i], 1);
-		}
-		else
-		{
-			i++;
-			if (format[i] == '\0')  /* lone % at the end */
-			{
-				va_end(args);
-				return (-1);
-			}
-			if (format[i] == 'c')
-				count += print_c_
+    while (format[i])
+    {
+        if (format[i] != '%')
+        {
+            count += write(1, &format[i], 1);
+        }
+        else
+        {
+            i++;
+            if (format[i] == '\0')  /* lone % at the end */
+            {
+                va_end(args);
+                return (-1);
+            }
+            if (format[i] == 'c')
+                count += print_char(va_arg(args, int));
+            else if (format[i] == 's')
+                count += print_string(va_arg(args, char *));
+            else if (format[i] == '%')
+                count += print_percent();
+            else
+            {
+                /* unknown specifier, print % and char */
+                count += write(1, "%", 1);
+                count += write(1, &format[i], 1);
+            }
+        }
+        i++;
+    }
+
+    va_end(args);
+    return (count);
+}
